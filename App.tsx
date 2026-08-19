@@ -9,11 +9,14 @@ import LoginScreen from './src/screens/LoginScreen';
 import ForgotPasswordScreen from './src/screens/ForgotPasswordScreen';
 import VerifyOtpScreen from './src/screens/VerifyOtpScreen';
 import DashboardScreen from './src/screens/dashboard/DashboardScreen';
+import QueueScreen from './src/screens/queue/QueueScreen';
 import type { Credentials } from './src/screens/LoginScreen';
 import type { NavTabKey } from './src/components/BottomNav';
 import type { PendingCase } from './src/screens/dashboard/data';
+import type { QueueCase } from './src/screens/queue/data';
+import { AGENT } from './src/screens/dashboard/data';
 
-type Stage = 'login' | 'forgotPassword' | 'verifyOtp' | 'dashboard';
+type Stage = 'login' | 'forgotPassword' | 'verifyOtp' | 'dashboard' | 'queue';
 
 /** The code the verify screen advertises until there is an API to ask. */
 const DEMO_OTP = '123456';
@@ -64,13 +67,37 @@ function App() {
   const showLogin = useCallback(() => setStage('login'), []);
   const showForgotPassword = useCallback(() => setStage('forgotPassword'), []);
 
+  /** Home and Queue are built; the other three tabs say so. */
   const handleSelectTab = useCallback(
     (key: NavTabKey) => {
-      if (key === 'home') return;
-      soon(key.charAt(0).toUpperCase() + key.slice(1));
+      if (key === 'home') setStage('dashboard');
+      else if (key === 'queue') setStage('queue');
+      else soon(key.charAt(0).toUpperCase() + key.slice(1));
     },
     [soon],
   );
+
+  /** Both lists open the same case; neither has a detail screen yet. */
+  const openCase = useCallback((entry: PendingCase | QueueCase) => {
+    Alert.alert(
+      entry.name,
+      `${entry.reference} · ${entry.service}. The case detail screen is not built yet.`,
+    );
+  }, []);
+
+  if (stage === 'queue') {
+    return (
+      <SafeAreaProvider>
+        <QueueScreen
+          alerts={AGENT.alerts}
+          onSelectTab={handleSelectTab}
+          onOpenCase={openCase}
+          onOpenFilters={() => soon('Filters')}
+          onRefresh={() => soon('Refresh')}
+        />
+      </SafeAreaProvider>
+    );
+  }
 
   if (stage === 'dashboard') {
     return (
@@ -80,15 +107,12 @@ function App() {
           onOpenMenu={() => soon('Menu')}
           onOpenAlerts={() => soon('Alerts')}
           onQuickAction={key =>
-            soon(key.charAt(0).toUpperCase() + key.slice(1))
+            key === 'queue'
+              ? setStage('queue')
+              : soon(key.charAt(0).toUpperCase() + key.slice(1))
           }
-          onViewAllCases={() => soon('My Queue')}
-          onOpenCase={(entry: PendingCase) =>
-            Alert.alert(
-              entry.name,
-              `${entry.reference} · ${entry.service}. The case detail screen is not built yet.`,
-            )
-          }
+          onViewAllCases={() => setStage('queue')}
+          onOpenCase={openCase}
         />
       </SafeAreaProvider>
     );

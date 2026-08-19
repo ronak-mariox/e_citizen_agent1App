@@ -174,39 +174,14 @@ export const PAYMENTS: {
   },
 ];
 
-export type Priority = 'High' | 'Medium' | 'Low';
-export type CaseStatus = 'assigned' | 'pendingVerification';
+/* The card these cases render into is the Queue's card, so its palettes are
+   shared — see constants/cases.ts. Re-exported because this screen's own
+   consumers already import them from here. */
+export { PRIORITY_STYLES, STATUS_STYLES } from '../../constants/cases';
+export type { CaseStatus, Priority } from '../../constants/cases';
 
-/** Badge palette per priority (nodes 675:2230, 675:2264). */
-export const PRIORITY_STYLES: Record<
-  Priority,
-  { background: string; border: string; color: string }
-> = {
-  High: { background: '#fef2f2', border: '#ffc9c9', color: '#c10007' },
-  Medium: { background: '#fffbeb', border: '#fee685', color: '#bb4d00' },
-  // Not drawn in the frame; follows the neutral chip the same cards use.
-  Low: { background: '#f8fafc', border: '#e2e8f0', color: '#62748e' },
-};
-
-export const STATUS_STYLES: Record<
-  CaseStatus,
-  { label: string; background: string; border: string; dot: string; color: string }
-> = {
-  assigned: {
-    label: 'Assigned',
-    background: '#eff6ff',
-    border: '#bedbff',
-    dot: '#2b7fff',
-    color: '#1447e6',
-  },
-  pendingVerification: {
-    label: 'Pending Verification',
-    background: '#fffbeb',
-    border: '#fee685',
-    dot: '#fe9a00',
-    color: '#bb4d00',
-  },
-};
+// Re-exporting alone does not bring the names into this file's own scope.
+import type { CaseStatus, Priority } from '../../constants/cases';
 
 export type PendingCase = {
   key: string;
